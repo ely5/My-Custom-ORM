@@ -1,0 +1,20 @@
+{
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "gender": "female",
+    "age": "24"
+}
+
+{
+    "firstName": "Sherlock",
+    "lastName": "Holmes",
+    "gender": "male",
+    "age": "90"
+}
+
+{
+    "firstName": "Charlotte",
+    "lastName": "Bronte",
+    "gender": "female",
+    "age": "30"
+}

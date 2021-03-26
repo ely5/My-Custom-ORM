@@ -1,0 +1,16 @@
+{
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "gender": "female",
+    "age": 24,
+    "address": {
+        "streetAddress": "1234 Whatever st.",
+        "city": "Houston",
+        "state": "TX",
+        "postalCode": "12345"
+    },
+    "phoneNumbers": [
+        { "type": "home", "number": "301425188" }
+    ]
+	"email": "janedoe@gmail.com"
+}
