@@ -1,7 +1,9 @@
+package orm;
+
 import java.lang.annotation.*;
 
 @Documented
-@interface MyAnnotation {
+public @interface MyAnnotation {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)

@@ -1,8 +1,16 @@
+package orm;
+
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.Locale;
 
 class DAO<T> implements DaoTemplate{
 
@@ -36,18 +44,10 @@ class DAO<T> implements DaoTemplate{
         return false;
     }
 
-    static String getType(String types) {
-        switch (types) {
-            case "String":
-                return "text";
-            case "Double":
-                return "decimal(32,2)";
-            default:
-                return types;
-        }
-    }
+
     @Override
     public void create(MyObject o, Mapping m) {
+        setSchema();
         try {
             StringBuilder str = new StringBuilder();
             String type = getType(o.getPkey().getType().getSimpleName());
@@ -59,7 +59,7 @@ class DAO<T> implements DaoTemplate{
             }
             // actual field objects
             Field[] fs = o.getFields();
-            // field names for column titles in sql
+            // field names for column titles in sql excluding primary key
             String[] fields = m.getFieldNames(fs);
             StringBuilder otherColumns = new StringBuilder();
             otherColumns.append((String) Arrays.stream(fields).filter(x -> !x.equals(o.getPkey().
@@ -68,7 +68,18 @@ class DAO<T> implements DaoTemplate{
             // field names excluding the primary key
             String[] cols = otherColumns.toString().split(" ");
             // field data types
-            String[] types = Arrays.stream(fs).map(x -> x.getType().getSimpleName()).toArray(String[]::new);
+            String[] types = new String[cols.length];
+            int j = 0;     // iterator with primary key
+            for (int i = 0; i < types.length; i++) {
+                if (!fs[j].equals(o.getPkey())){
+                    types[i] = fs[j].getType().getSimpleName();
+                    j++;
+                }
+                else {
+                    j++;
+                    i--;
+                }
+            }
             for (int i = 0; i < cols.length; i++) {
                 str.append("\"" + cols[i] + "\" ");
                 str.append(getType(types[i]));
@@ -77,7 +88,7 @@ class DAO<T> implements DaoTemplate{
                 }
             }
             str.append(")");
-        //  System.out.println(str);
+            System.out.println(str);
             PreparedStatement ps = ConnectionUtil.connect().prepareStatement(str.toString(), Statement.RETURN_GENERATED_KEYS);
             ps.executeQuery();
         } catch (SQLException e) {
@@ -85,12 +96,50 @@ class DAO<T> implements DaoTemplate{
         }
     }
 
-    @Override
-    public int insert(MyObject o, Mapping m) {
-        return 0;
+    Object getGetter(MyObject o, Field f) throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+        PropertyDescriptor[] ps = Introspector.getBeanInfo(o.getC()).getPropertyDescriptors();
+        for (PropertyDescriptor p : ps) {
+            if (p.getReadMethod().toString().toLowerCase().contains(f.getName().toLowerCase(Locale.ROOT))) {
+                return p.getReadMethod().invoke(o.getO());
+            }
+        }
+        return null;
     }
 
     @Override
+    public void insert(MyObject o, Mapping m) {
+        try {
+            StringBuilder str = new StringBuilder();
+            str.append("insert into \"" + o.getC().getSimpleName().toString() + "\" values (");
+            Field[] fs = o.getFields();
+            for (Field f : fs) {
+                Object methodResult = getGetter(o, f);
+                if (methodResult.getClass().getSimpleName().equals("String")) {
+                    str.append("'");
+                }
+                str.append(methodResult);
+                if (methodResult.getClass().getSimpleName().equals("String")) {
+                    str.append("'");
+                }
+                str.append(", ");
+            }
+            str.delete(str.length() - 2, str.length() - 1);
+            str.append(")");
+            System.out.println(str.toString());
+            PreparedStatement ps = ConnectionUtil.connect().prepareStatement(str.toString(), Statement.RETURN_GENERATED_KEYS);
+            ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
+            ps.close();
+        }
+        catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+        @Override
     public boolean update(Object o) {
         return false;
     }
@@ -118,5 +167,20 @@ class DAO<T> implements DaoTemplate{
     @Override
     public boolean begin() {
         return false;
+    }
+
+    static String getType(String types) {
+        switch (types.toLowerCase()) {
+            case "int":
+                return "integer";
+            case "char":
+                return "smallint";
+            case "string":
+                return "text";
+            case "double":
+                return "decimal(32,2)";
+            default:
+                return types;
+        }
     }
 }

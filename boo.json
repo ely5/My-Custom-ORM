@@ -2,5 +2,6 @@
     "firstName": "Jane",
     "lastName": "Doe",
     "gender": "female",
-    "age": "24"
+    "age": "24",
+	"pet": "bug"
 }

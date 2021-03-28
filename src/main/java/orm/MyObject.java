@@ -1,23 +1,29 @@
+package orm;
+
 import java.lang.reflect.Field;
 
 public class MyObject {
 
-    public Class c;
+    public Object o;
     public Field pkey;
     public Field[] fields;
 
-    public MyObject(Class c, Field pkey, Field[] fields) {
-        this.c = c;
+    public MyObject(Object o, Field pkey, Field[] fields) {
+        this.o = o;
         this.pkey = pkey;
         this.fields = fields;
     }
 
     public Class getC() {
-        return c;
+        return o.getClass();
     }
 
-    public void setC(Class c) {
-        this.c = c;
+    public Object getO() {
+        return o;
+    }
+
+    public void setO(Object o) {
+        this.o = o;
     }
 
     public Field getPkey() {

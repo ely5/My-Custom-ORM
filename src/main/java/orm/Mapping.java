@@ -1,17 +1,17 @@
-import com.google.gson.Gson;
+package orm;
 
+import com.google.gson.Gson;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
-class Mapping {
+public class Mapping {
 
     private Class clazz;
     private String jsonString;
     private Field primaryKey = null;
-    private Field[] compositeKey = null;
 
     public Field getPrimaryKey() {
         return primaryKey;
@@ -21,18 +21,9 @@ class Mapping {
         this.primaryKey = primaryKey;
     }
 
-    public Field[] getCompositeKey() {
-        return compositeKey;
-    }
-
-    public void setCompositeKey(Field[] compositeKey) {
-        this.compositeKey = compositeKey;
-    }
-
     public Field[] getFields(Object o) {
         Field[] allFields = o.getClass().getDeclaredFields();
         Field[] fields = new Field[allFields.length];
-        int count = 0;
         for (int i = 0; i < allFields.length; i++) {
             Annotation[] annotations = allFields[i].getDeclaredAnnotations();
             Annotation[] pKey = allFields[i].getDeclaredAnnotationsByType(MyAnnotation.PrimaryKey.class);
@@ -50,7 +41,7 @@ class Mapping {
         return (Field[]) Arrays.stream(f).filter(x -> x != null).toArray(Field[]::new);
     }
 
-    public String[] getFieldNames(Field[] f) {
+    String[] getFieldNames(Field[] f) {
         return Arrays.stream(f).map(x -> x.getName()).toArray(String[]::new);
     }
 
@@ -61,8 +52,7 @@ class Mapping {
     }
 
     void preprocess(String s) {
-        String temp = s;
-        jsonString = temp.trim();
+        jsonString = s.trim();
     }
 
     void jsonToString(String file) throws Exception {
@@ -72,14 +62,16 @@ class Mapping {
 
     public void persist(Object o) {
         Field[] fields = this.getFields(o);
-        MyObject newObj = new MyObject(o.getClass(), primaryKey, fields);
+        MyObject newObj = new MyObject(o, primaryKey, fields);
         DAO.getInstance().create(newObj, this);
+        DAO.getInstance().insert(newObj, this);
      }
 
     public void persist(String file, Class c) throws Exception {
         Object object = this.jsonToObject(file, c);
         Field[] fields = this.getFields(object);
-        MyObject newObj = new MyObject(c, primaryKey, fields);
+        MyObject newObj = new MyObject(object, primaryKey, fields);
         DAO.getInstance().create(newObj, this);
+        DAO.getInstance().insert(newObj, this);
     }
 }

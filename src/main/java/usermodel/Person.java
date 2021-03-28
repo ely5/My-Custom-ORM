@@ -1,5 +1,7 @@
+package usermodel;
+
 @MyAnnotation.SerializableToJson
-public class Person extends Object{
+public class Person{
 
     @MyAnnotation.JsonElement
     @MyAnnotation.PrimaryKey
@@ -8,18 +10,18 @@ public class Person extends Object{
     private String lastName;
     private String gender;
     @MyAnnotation.JsonElement
-    private int age;
+    private Integer age;
     @MyAnnotation.JsonElement
-    private Animal pet;
+    private String pet;
 
     public Person() {
         this.firstName = null;
         this.lastName = null;
         this.gender = null;
         this.age = 0;
-        this.pet = new Animal();
+        this.pet = null;
     }
-    public Person(String firstName, String lastName, String gender, int age, Animal pet){
+    public Person(String firstName, String lastName, String gender, int age, String pet){
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
@@ -27,9 +29,7 @@ public class Person extends Object{
         this.pet = pet;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
+    public String getFirstName() { return firstName; }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
@@ -51,22 +51,24 @@ public class Person extends Object{
         this.gender = gender;
     }
 
-    public int getAge() {
-        return age;
-    }
+    public Integer getAge() { return age; }
 
     public void setAge(int age) {
         this.age = age;
     }
 
+    public String getPet() { return pet; }
+
+    public void setPet(String pet) { this.pet = pet; }
+
     @Override
     public String toString() {
-        return "Person {" +
-                "firstName=\"" + firstName + '\"' +
-                ", lastName=\"" + lastName + '\"' +
-                ", gender=\"" + gender + '\"' +
-                ", age=" + age + '\"' +
-                ", pet=\"" + pet.getName() +
-                '\"';
+        return "usermodel.Person{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", gender='" + gender + '\'' +
+                ", age=" + age +
+                ", pet='" + pet + '\'' +
+                '}';
     }
 }
