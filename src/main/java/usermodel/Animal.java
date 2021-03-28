@@ -1,7 +1,9 @@
 package usermodel;
 
+import orm.MyAnnotation;
+
 @MyAnnotation.SerializableToJson
-class Animal {
+public class Animal {
 
     @MyAnnotation.JsonElement
     @MyAnnotation.PrimaryKey
@@ -27,7 +29,6 @@ class Animal {
         this.siblings = siblings;
     }
 
-    @MyAnnotation.JsonMethod
     public String getName() {
         return name;
     }
@@ -36,7 +37,6 @@ class Animal {
         this.name = name;
     }
 
-    @MyAnnotation.JsonMethod
     public Integer getAge() {
         return age;
     }

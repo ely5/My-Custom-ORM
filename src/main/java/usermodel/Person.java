@@ -1,5 +1,7 @@
 package usermodel;
 
+import orm.MyAnnotation;
+
 @MyAnnotation.SerializableToJson
 public class Person{
 

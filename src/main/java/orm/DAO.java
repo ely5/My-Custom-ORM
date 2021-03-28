@@ -5,10 +5,8 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -24,15 +22,8 @@ class DAO<T> implements DaoTemplate{
         return dao;
     }
 
-    static void setSchema() {
-        String query = "SET search_path TO orm";
-        try {
-            PreparedStatement ps = ConnectionUtil.connect().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            ps.executeQuery();
-        } catch (SQLException e) {
-            return;
-        }
-    }
+    private static ArrayList<String> table_list = new ArrayList<String>();
+    private static ArrayList<String> query_list = new ArrayList<String>();
 
     @Override
     public boolean select(Object o) {
@@ -47,11 +38,15 @@ class DAO<T> implements DaoTemplate{
 
     @Override
     public void create(MyObject o, Mapping m) {
-        setSchema();
-        try {
+        if (table_list.contains(o.getC().getSimpleName().toString())){
+            return;
+        }
+        try (ConnectionSession sess = new ConnectionSession()){
             StringBuilder str = new StringBuilder();
             String type = getType(o.getPkey().getType().getSimpleName());
             str.append("create table if not exists \"" + o.getC().getSimpleName().toString() + "\"(");
+
+            table_list.add(o.getC().getSimpleName().toString());
             if (o.getPkey() != null) {
                 str.append("\r\n\"" + o.getPkey().getName() + "\" " + type + " primary key,\r\n");
             } else {
@@ -88,11 +83,14 @@ class DAO<T> implements DaoTemplate{
                 }
             }
             str.append(")");
-            System.out.println(str);
-            PreparedStatement ps = ConnectionUtil.connect().prepareStatement(str.toString(), Statement.RETURN_GENERATED_KEYS);
+            //System.out.println(str);
+            Connection conn = sess.getActiveConnection();
+            PreparedStatement ps = conn.prepareStatement(str.toString(), Statement.RETURN_GENERATED_KEYS);
             ps.executeQuery();
         } catch (SQLException e) {
             return;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -108,7 +106,7 @@ class DAO<T> implements DaoTemplate{
 
     @Override
     public void insert(MyObject o, Mapping m) {
-        try {
+        try (ConnectionSession sess = new ConnectionSession();){
             StringBuilder str = new StringBuilder();
             str.append("insert into \"" + o.getC().getSimpleName().toString() + "\" values (");
             Field[] fs = o.getFields();
@@ -125,8 +123,9 @@ class DAO<T> implements DaoTemplate{
             }
             str.delete(str.length() - 2, str.length() - 1);
             str.append(")");
-            System.out.println(str.toString());
-            PreparedStatement ps = ConnectionUtil.connect().prepareStatement(str.toString(), Statement.RETURN_GENERATED_KEYS);
+            //System.out.println(str.toString());
+            Connection conn = sess.getActiveConnection();
+            PreparedStatement ps = conn.prepareStatement(str.toString(), Statement.RETURN_GENERATED_KEYS);
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             ps.close();

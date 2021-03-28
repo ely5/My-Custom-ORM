@@ -64,14 +64,15 @@ public class Mapping {
         Field[] fields = this.getFields(o);
         MyObject newObj = new MyObject(o, primaryKey, fields);
         DAO.getInstance().create(newObj, this);
-        DAO.getInstance().insert(newObj, this);
+        DAO.getInstance().create(newObj, this);
+    //    DAO.getInstance().insert(newObj, this);
      }
 
     public void persist(String file, Class c) throws Exception {
         Object object = this.jsonToObject(file, c);
         Field[] fields = this.getFields(object);
         MyObject newObj = new MyObject(object, primaryKey, fields);
-        DAO.getInstance().create(newObj, this);
-        DAO.getInstance().insert(newObj, this);
+     //   DAO.getInstance().create(newObj, this);
+     //   DAO.getInstance().insert(newObj, this);
     }
 }
