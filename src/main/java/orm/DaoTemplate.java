@@ -8,7 +8,7 @@ public interface DaoTemplate<T,K> {
     public void selectAll(String tableName, Mapping m) throws Exception;
     public void create(MyObject o, Mapping m);
     public void insert(MyObject o, Mapping m);
-    public void update(MyObject o) ;
+    public void update(MyObject o, Mapping m) throws Exception;
     public void delete(String id, Class c, Mapping m) throws Exception;
     public boolean commit() ;
     public boolean rollback() ;

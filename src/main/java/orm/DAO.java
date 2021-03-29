@@ -55,7 +55,7 @@ class DAO<T> implements DaoTemplate{
 
     static int i = 0;
     @Override
-    public synchronized void selectAll(String tableName, Mapping m) throws Exception {
+    public void selectAll(String tableName, Mapping m) throws Exception {
         if (!selected.contains(tableName)) {
             try (ConnectionSession sess = new ConnectionSession()) {
                 Connection conn = sess.getActiveConnection();
@@ -92,7 +92,7 @@ class DAO<T> implements DaoTemplate{
 
 
     @Override
-    public synchronized void create(MyObject o, Mapping m) {
+    public void create(MyObject o, Mapping m) {
         if (created.contains(o.getC().getSimpleName())){
             return;
         }
@@ -128,8 +128,11 @@ class DAO<T> implements DaoTemplate{
     }
 
     @Override
-    public void update(MyObject o) {
-
+    public void update(MyObject o, Mapping m) throws Exception {
+        o.getFields()[0].setAccessible(true);
+        Object ob = o.getFields()[0].get(o.getO());
+        m.delete(ob.toString(), o.getC());
+        insert(o,m);
     }
 
     @Override
