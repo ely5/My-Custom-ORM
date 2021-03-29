@@ -6,11 +6,14 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import usermodel.Animal;
+import usermodel.Person;
 
 public class Mapping {
 
     private Class clazz;
     private String jsonString;
+
     private Field primaryKey = null;
 
     public Field getPrimaryKey() {
@@ -64,15 +67,18 @@ public class Mapping {
         Field[] fields = this.getFields(o);
         MyObject newObj = new MyObject(o, primaryKey, fields);
         DAO.getInstance().create(newObj, this);
-        DAO.getInstance().create(newObj, this);
-    //    DAO.getInstance().insert(newObj, this);
+        DAO.getInstance().insert(newObj, this);
      }
 
     public void persist(String file, Class c) throws Exception {
         Object object = this.jsonToObject(file, c);
         Field[] fields = this.getFields(object);
         MyObject newObj = new MyObject(object, primaryKey, fields);
-     //   DAO.getInstance().create(newObj, this);
-     //   DAO.getInstance().insert(newObj, this);
+        DAO.getInstance().create(newObj, this);
+        DAO.getInstance().insert(newObj, this);
+    }
+
+    public void selectAll(String tableName) throws Exception {
+        DAO.getInstance().selectAll(tableName, this);
     }
 }

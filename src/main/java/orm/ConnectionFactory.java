@@ -11,7 +11,7 @@ import java.util.Properties;
 
 public class ConnectionFactory implements Closeable {
 
-    public static final int MAX_CONNECTIONS = 3;
+    public static final int MAX_CONNECTIONS = 4;
     private final Connection[] connectionPool = new Connection[MAX_CONNECTIONS];
 
     private static ConnectionFactory instance;
@@ -25,8 +25,8 @@ public class ConnectionFactory implements Closeable {
 
     private ConnectionFactory() {
         for(int i = 0; i< MAX_CONNECTIONS; i++){
-            System.out.println("adding connection number "+i+" to the connection pool");
-            connectionPool[i] = connect("");
+          //  System.out.println("adding connection number "+i+" to the connection pool");
+            connectionPool[i] = connect();
         }
         try {
             Thread.sleep(1000);
@@ -35,13 +35,13 @@ public class ConnectionFactory implements Closeable {
         }
     }
 
-    public static Connection connect(String profile) {
+    public static Connection connect() {
         Properties props = new Properties();
         try {
             props.load(new FileReader(new File("src/main/resources/db.properties")));
 
-            String connectionTemplate = "jdbc.connection" + profile;
-            System.out.println("creating a connection");
+            String connectionTemplate = "jdbc.connection";
+         //   System.out.println("creating a connection");
             return DriverManager.getConnection(
                     props.getProperty(connectionTemplate + ".url"),
                     props.getProperty(connectionTemplate + ".username"),

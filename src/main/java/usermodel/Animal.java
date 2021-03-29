@@ -63,7 +63,7 @@ public class Animal {
 
     @Override
     public String toString() {
-        return "usermodel.Animal{" +
+        return "Animal{" +
                 "name=\"" + name + '\"'+
                 ", age=\"" + age +
                 ", weight=" + weight +

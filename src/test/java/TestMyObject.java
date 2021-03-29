@@ -39,4 +39,10 @@ public class TestMyObject {
         m1.setPkey(m1.getFields()[0]);
         assertEquals(m1.getFields()[0], m1.getPkey());
     }
+
+    @Test
+    public void testGetFields() {
+        assertEquals(m1.getFields()[0], p.getClass().getDeclaredFields()[0]);
+        assertEquals(m1.getFields()[1], p.getClass().getDeclaredFields()[1]);
+    }
 }
