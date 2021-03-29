@@ -81,4 +81,15 @@ public class Mapping {
     public void selectAll(String tableName) throws Exception {
         DAO.getInstance().selectAll(tableName, this);
     }
+
+    public void delete(String id, Class c) throws Exception {
+        StringBuilder str = DAO.database.get(c.getSimpleName());
+        int remove = c.getDeclaredFields()[0].getName().length();
+        int index = str.indexOf(id) - remove - 3;
+        int index2 = str.indexOf("\r", index);
+        str.delete(index, index2);
+        System.out.println(str);
+        DAO.database.replace(c.getSimpleName(), str);
+        DAO.getInstance().delete(id, c, this);
+    }
 }

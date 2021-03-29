@@ -16,10 +16,10 @@ class DAO<T> implements DaoTemplate{
         return dao;
     }
 
-    static ArrayList<String> created = new ArrayList<String>();
-    static ArrayList<String> selected = new ArrayList<String>();
-    static Set<MyObject> objects = new HashSet<MyObject>();
-    static HashMap<String, StringBuilder> database = new HashMap<String,StringBuilder>();
+    static ArrayList<String> created = new ArrayList<>();
+    static ArrayList<String> selected = new ArrayList<>();
+    static Set<MyObject> objects = new HashSet<>();
+    static HashMap<String, StringBuilder> database = new HashMap<>();
 
     @Override
     public boolean select(Object o) {
@@ -92,7 +92,7 @@ class DAO<T> implements DaoTemplate{
 
 
     @Override
-    public void create(MyObject o, Mapping m) {
+    public synchronized void create(MyObject o, Mapping m) {
         if (created.contains(o.getC().getSimpleName())){
             return;
         }
@@ -111,7 +111,7 @@ class DAO<T> implements DaoTemplate{
 
     @Override
     public void insert(MyObject o, Mapping m) {
-        try (ConnectionSession sess = new ConnectionSession();){
+        try (ConnectionSession sess = new ConnectionSession()){
             Connection conn = sess.getActiveConnection();
             String str = QueryBuilder.insertQuery(o,m);
             PreparedStatement ps = conn.prepareStatement(str, Statement.RETURN_GENERATED_KEYS);
@@ -133,8 +133,24 @@ class DAO<T> implements DaoTemplate{
     }
 
     @Override
-    public boolean delete(Object o) {
-        return false;
+    public void delete(String id, Class c, Mapping m) throws Exception {
+        try (ConnectionSession sess = new ConnectionSession()){
+            StringBuilder str = new StringBuilder();
+            str.append("delete from " + c.getSimpleName() + " where ");
+            Connection conn = sess.getActiveConnection();
+
+            Statement s = conn.createStatement();
+            ResultSet r = s.executeQuery("select * from " + c.getSimpleName() + " where false");
+            ResultSetMetaData rsmd = r.getMetaData();
+            String pk = rsmd.getColumnLabel(1);
+
+            str.append("\"" + pk + "\" = '" + id + "'");
+            PreparedStatement ps = conn.prepareStatement(str.toString());
+            ResultSet rs = ps.executeQuery();
+        }
+        catch (SQLException e) {
+            return;
+        }
     }
 
     @Override

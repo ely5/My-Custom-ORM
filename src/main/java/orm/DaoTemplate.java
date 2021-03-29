@@ -9,7 +9,7 @@ public interface DaoTemplate<T,K> {
     public void create(MyObject o, Mapping m);
     public void insert(MyObject o, Mapping m);
     public void update(MyObject o) ;
-    public boolean delete(K k) ;
+    public void delete(String id, Class c, Mapping m) throws Exception;
     public boolean commit() ;
     public boolean rollback() ;
     public boolean savepoint() ;
